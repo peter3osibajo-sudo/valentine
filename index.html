@@ -168,45 +168,47 @@ function confettiBurst() {
   }
 }
 
-/* YES click — EVERYTHING happens here */
+/* YES click — animation FIRST, WhatsApp AFTER */
 yesBtn.addEventListener("click", () => {
 
-  /* 📲 WhatsApp confirmation to YOU */
-  const yourNumber = "3172468303";
-  const message = encodeURIComponent(
-    "I said YES 💖🥹 Happy Valentine’s Day 😘"
-  );
-
-  window.open(
-    `https://wa.me/${yourNumber}?text=${message}`,
-    "_blank"
-  );
-
-  /* 🎶 Music */
+  // 🎶 Music
   song.play();
 
-  /* 🎉 Confetti */
+  // 🎉 Confetti
   confettiBurst();
   setTimeout(confettiBurst, 300);
   setTimeout(confettiBurst, 600);
 
-  /* 🚫 Remove NO */
+  // 🚫 Remove NO
   noBtn.remove();
 
-  /* 💖 Update message */
+  // 💖 Update card
   card.innerHTML = `
     <img src="peter.jpg" class="avatar">
     <h1>Yay!! 💖</h1>
     <p>You just made me the happiest person alive 🥹❤️</p>
   `;
 
-  /* 💕 Hearts */
+  // 💕 Hearts
   startHearts();
 
-  /* 💌 Final line */
+  // 💌 Final message
   setTimeout(() => {
     card.innerHTML += `<p>Happy Valentine’s Day 💌</p>`;
-  }, 3000);
+  }, 2000);
+
+  // 📲 WhatsApp AFTER animations
+  setTimeout(() => {
+    const yourNumber = "3172468303";
+    const message = encodeURIComponent(
+      "I said YES 💖🥹 Happy Valentine’s Day 😘"
+    );
+
+    window.open(
+      `https://wa.me/${yourNumber}?text=${message}`,
+      "_blank"
+    );
+  }, 2600);
 });
 </script>
 
