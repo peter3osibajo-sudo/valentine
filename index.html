@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>Will You Be My Valentine? 💖</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -42,7 +44,7 @@
 
     .buttons {
       position: relative;           /* keeps #no inside this region */
-      height: 80px;                 /* room so the Yes can grow without layout jump */
+      height: 80px;                 /* room so Yes can grow without layout jump */
       display: flex; justify-content: center; align-items: center;
       gap: 15px;
       margin-top: 20px;
@@ -62,13 +64,13 @@
       background: #ff4d6d; color: white;
       position: relative; z-index: 2;       /* keep on top while it grows */
       transform-origin: center center;
-      transition: transform .15s ease;      /* quick hover/feel */
+      transition: transform .15s ease;
     }
 
     #no {
       background: #ddd; color: #555;
-      position: absolute;                   /* we place it precisely inside .buttons */
-      left: 0; top: 0;                      /* initial values will be set by JS to avoid overlap */
+      position: absolute;                   /* precise placement inside .buttons */
+      left: 0; top: 0;                      /* JS sets actual values */
       transform: translate(0,0);
     }
 
@@ -84,7 +86,7 @@
       to { transform: translateY(-110vh); opacity: 0; }
     }
 
-    /* Small pop animation you had */
+    /* Pop-in animation */
     .pop { animation: pop .6s ease both; }
     @keyframes pop {
       0% { transform: scale(0); }
@@ -92,27 +94,41 @@
       100% { transform: scale(1); }
     }
 
-    /* Grow animation for YES (scale to a CSS var then come back) */
-    .grow {
-      animation: growPulse .45s ease;
-    }
+    /* Grow animation for YES (scale to CSS var then back) */
+    .grow { animation: growPulse .45s ease; }
     @keyframes growPulse {
       0%   { transform: scale(1); }
       60%  { transform: scale(var(--grow-to, 1.6)); }
       100% { transform: scale(1); }
     }
 
+    /* 🎉 Emoji confetti (hearts + flowers) */
+    .emoji-confetti {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 22px;
+      will-change: transform, opacity;
+      pointer-events: none;
+      animation: emojiConfetti 1000ms cubic-bezier(.15,.65,.35,1) forwards;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.15));
+    }
+    @keyframes emojiConfetti {
+      0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(var(--scale)); }
+    }
+
     /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce){
       * { animation: none !important; transition: none !important; }
-      .heart { display: none !important; }
+      .heart, .emoji-confetti { display: none !important; }
     }
   </style>
 </head>
 <body>
 
   <div class="card" id="card" aria-live="polite">
-    <img src="./peter.jpg" alt="photo" class="avatar" id="avatar">
+    <img class="avatar" src="./peter.jpg" alt="photo">
     <h1>Will you be my Valentine? 💘</h1>
     <p>Say yes and make my day! 🌷</p>
 
@@ -129,6 +145,7 @@
     const btnWrap = document.getElementById("btnWrap");
 
     // ============ Hearts on YES ============
+    let heartTimer = null;
     function startHearts(){
       stopHearts();
       heartTimer = setInterval(() => {
@@ -143,7 +160,43 @@
     function stopHearts(){
       if (heartTimer != null){ clearInterval(heartTimer); heartTimer = null; }
     }
-    let heartTimer = null;
+
+    // ============ 🎉 Heart + Flower Confetti on YES ============
+    function burstEmojiConfetti(count = 100, originEl = yesBtn) {
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) return;
+
+      const EMOJIS = ["💖","❤️","💘","🌸","🌷","🌹","🌼","💐"];
+      const rect = originEl.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top  + rect.height / 2;
+
+      for (let i = 0; i < count; i++) {
+        const span = document.createElement("span");
+        span.className = "emoji-confetti";
+        span.textContent = EMOJIS[i % EMOJIS.length];
+
+        // Randomize burst vector and style
+        const angle = Math.random() * Math.PI * 2;           // 0–360°
+        const distance = 120 + Math.random() * 260;          // how far each piece travels
+        const dx = Math.cos(angle) * distance + "px";
+        const dy = Math.sin(angle) * distance + "px";
+        const rot = (Math.random() * 720 - 360) + "deg";     // spin
+        const scale = (0.8 + Math.random() * 0.9).toFixed(2); // 0.8–1.7 size
+
+        // Randomize font size a little
+        span.style.fontSize = (18 + Math.random()*14) + "px";
+        span.style.left = originX + "px";
+        span.style.top  = originY + "px";
+        span.style.setProperty("--dx", dx);
+        span.style.setProperty("--dy", dy);
+        span.style.setProperty("--rot", rot);
+        span.style.setProperty("--scale", scale);
+
+        document.body.appendChild(span);
+        setTimeout(() => span.remove(), 1100);
+      }
+    }
 
     // ============ Place "No" away from "Yes" (no overlap at start) ============
     window.addEventListener("load", lockNoPosition);
@@ -155,7 +208,6 @@
       const noRect   = noBtn.getBoundingClientRect();
       const left = noRect.left - wrapRect.left;
       const top  = noRect.top  - wrapRect.top;
-
       noBtn.style.position = "absolute";
       noBtn.style.left = `${left}px`;
       noBtn.style.top  = `${top}px`;
@@ -187,7 +239,6 @@
       yesBtn.style.setProperty("--grow-to", scale);
       yesBtn.classList.remove("grow"); // restart animation if already active
       // Force reflow to restart the animation reliably
-      // eslint-disable-next-line no-unused-expressions
       void yesBtn.offsetWidth;
       yesBtn.classList.add("grow");
     }
@@ -231,7 +282,7 @@
       growYesOnce();
     }
 
-    // Dodge when someone *tries* to click or hover/focus "No"
+    // Dodge when someone tries to click/hover/focus "No"
     ["pointerover","pointerdown","mouseenter","touchstart","focus"].forEach(evt => {
       noBtn.addEventListener(evt, (e) => {
         e.preventDefault();
@@ -239,18 +290,21 @@
         noBtn.blur();
       }, { passive: true });
     });
-
     // If a click sneaks through, dodge anyway
     noBtn.addEventListener("click", (e) => { e.preventDefault(); moveNo(); }, { passive: false });
 
-    // ============ YES action (kept your heart celebration) ============
+    // ============ YES action ============
     yesBtn.addEventListener("click", () => {
+      // Swap content and celebrate
       card.innerHTML = `
-        <img src="./peter.jpg" class="avatar pop" alt="photo">
+        <img class="avatar pop" src="./peter.jpg" alt="photo">
         <h1 class="pop">Yay!! 💖</h1>
         <p class="pop">Awww, you love me! 😍</p>
       `;
       startHearts();
+      burstEmojiConfetti(120, yesBtn);    // 🎉 hearts + flowers burst
+      // Optional: second wave a moment later
+      setTimeout(() => burstEmojiConfetti(80, yesBtn), 180);
     });
   </script>
 </body>
