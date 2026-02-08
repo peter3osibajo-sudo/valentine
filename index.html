@@ -113,7 +113,7 @@ button {
   </div>
 </div>
 
-<!-- Music -->
+<!-- Background music -->
 <audio id="loveSong" src="love.mp3"></audio>
 
 <script>
@@ -168,24 +168,42 @@ function confettiBurst() {
   }
 }
 
-/* YES click */
+/* YES click — EVERYTHING happens here */
 yesBtn.addEventListener("click", () => {
+
+  /* 📲 WhatsApp confirmation to YOU */
+  const yourNumber = "3172468303";
+  const message = encodeURIComponent(
+    "I said YES 💖🥹 Happy Valentine’s Day 😘"
+  );
+
+  window.open(
+    `https://wa.me/${yourNumber}?text=${message}`,
+    "_blank"
+  );
+
+  /* 🎶 Music */
   song.play();
 
+  /* 🎉 Confetti */
   confettiBurst();
   setTimeout(confettiBurst, 300);
   setTimeout(confettiBurst, 600);
 
+  /* 🚫 Remove NO */
   noBtn.remove();
 
+  /* 💖 Update message */
   card.innerHTML = `
     <img src="peter.jpg" class="avatar">
     <h1>Yay!! 💖</h1>
     <p>You just made me the happiest person alive 🥹❤️</p>
   `;
 
+  /* 💕 Hearts */
   startHearts();
 
+  /* 💌 Final line */
   setTimeout(() => {
     card.innerHTML += `<p>Happy Valentine’s Day 💌</p>`;
   }, 3000);
