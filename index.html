@@ -3,183 +3,349 @@
 <head>
   <meta charset="UTF-8" />
   <title>Will You Be My Valentine? 💖</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Confetti library -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
   <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
       margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      min-height: 100%;
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
+      align-items: center;
+      padding: 16px;
+      background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
 
     .card {
-      background: white;
+      background: #fff;
       padding: 30px;
-      border-radius: 20px;
+      border-radius: 25px;
+      width: min(92vw, 380px);
       text-align: center;
-      max-width: 350px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
+      position: relative;
     }
 
     .avatar {
-      width: 120px;
-      height: 120px;
+      width: 170px; height: 170px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 15px;
+      border: 4px solid #ff4d6d;
+      margin: 0 auto 12px;
+      display: block;
     }
 
-    h1 {
-      margin: 10px 0;
-      color: #ff4d6d;
-    }
-
-    p {
-      color: #444;
-    }
+    h1 { color: #ff4d6d; margin: 8px 0 6px; }
+    p  { color: #444; margin: 8px 0 0; }
 
     .buttons {
-      margin-top: 20px;
+      position: relative;
+      margin-top: 22px;
+      height: 90px;                /* room for Yes to grow without layout jump */
       display: flex;
       justify-content: center;
-      gap: 15px;
+      align-items: center;
+      gap: 16px;
+      user-select: none;
+      touch-action: manipulation;
     }
 
     button {
-      padding: 12px 20px;
-      border: none;
+      padding: 12px 22px;
       border-radius: 30px;
+      border: none;
       font-size: 16px;
       cursor: pointer;
     }
 
-    #yesBtn {
-      background: #ff4d6d;
-      color: white;
+    #yes {
+      background: #ff4d6d; color: white;
+      position: relative; z-index: 2;
+      transform-origin: center center;
+      transition: transform .15s ease;
     }
 
-    #noBtn {
-      background: #ccc;
+    #no {
+      background: #eee; color: #555;
+      position: absolute;       /* JS will place it exactly to avoid overlap */
+      left: 0; top: 0;
+      transform: translate(0,0);
     }
 
+    /* Floating hearts up the screen */
     .heart {
       position: fixed;
       bottom: -20px;
-      font-size: 24px;
+      font-size: 22px;
       animation: floatUp 4s linear forwards;
+      pointer-events: none;
+      z-index: 9998;
+    }
+    @keyframes floatUp {
+      to { transform: translateY(-110vh); opacity: 0; }
     }
 
-    @keyframes floatUp {
-      from {
-        transform: translateY(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(-100vh);
-        opacity: 0;
-      }
+    /* Confetti (emoji pieces) */
+    .emoji-confetti {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 22px;
+      animation: emojiConfetti 1000ms cubic-bezier(.15,.65,.35,1) forwards;
+      will-change: transform, opacity;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.2));
+      z-index: 9999;
+    }
+    @keyframes emojiConfetti {
+      0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(var(--scale)); }
+    }
+
+    /* Pop-in */
+    .pop { animation: pop .6s ease both; }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* YES growth when NO dodges (1–2x) */
+    .grow { animation: growPulse .45s ease; }
+    @keyframes growPulse {
+      0%   { transform: scale(1); }
+      60%  { transform: scale(var(--grow-to, 1.6)); }
+      100% { transform: scale(1); }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      * { animation: none !important; transition: none !important; }
+      .heart, .emoji-confetti { display: none !important; }
     }
   </style>
 </head>
-
 <body>
 
-  <div class="card" id="card">
-    <img src="peter.jpg" class="avatar" />
+  <div class="card" id="card" aria-live="polite">
+    <img src="peter.jpg" alt="Photo" class="avatar" loading="lazy" />
     <h1>Will you be my Valentine? 💘</h1>
-    <p>I promise snacks, laughs, and endless love 🥹</p>
+    <p>Life is sweeter with you in it 💕</p>
 
-    <div class="buttons">
-      <button id="yesBtn">Yes 💖</button>
-      <button id="noBtn">No 🙈</button>
+    <div class="buttons" id="btnWrap" aria-label="Answer choices">
+      <button id="yes" type="button">Yes 💖</button>
+      <button id="no"  type="button">No 🙈</button>
     </div>
   </div>
 
-  <audio id="song" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+  <!-- Background music (plays on Yes click because it's a user gesture) -->
+  <audio id="loveSong" src="love.mp3" preload="auto"></audio>
 
   <script>
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn = document.getElementById("noBtn");
-    const card = document.getElementById("card");
-    const song = document.getElementById("song");
+    // ====== Config: set your WhatsApp number and message ======
+    // Use E.164 format: country code + number, NO plus sign. Example (US): 13172468303
+    const WHATSAPP_NUMBER = "13172468303"; // ⬅️ change this to YOUR number
+    const WHATSAPP_MESSAGE = "I said YES 💖🥹 Happy Valentine’s Day 😘";
 
-    function confettiBurst() {
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+    // ====== Elements ======
+    const yesBtn  = document.getElementById("yes");
+    const noBtn   = document.getElementById("no");
+    const card    = document.getElementById("card");
+    const btnWrap = document.getElementById("btnWrap");
+    const song    = document.getElementById("loveSong");
+
+    // ====== Hearts ======
+    let heartTimer = null;
+    function startHearts(){
+      stopHearts();
+      heartTimer = setInterval(() => {
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.textContent = Math.random() < 0.4 ? "💘" : "❤️";
+        h.style.left = (Math.random() * 100) + "vw";
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 4200);
+      }, 250);
+    }
+    function stopHearts(){
+      if (heartTimer != null) { clearInterval(heartTimer); heartTimer = null; }
     }
 
-    function startHearts() {
-      setInterval(() => {
-        const heart = document.createElement("div");
-        heart.className = "heart";
-        heart.innerHTML = "💖";
-        heart.style.left = Math.random() * 100 + "vw";
-        document.body.appendChild(heart);
+    // ====== Confetti (hearts + flowers) from a point ======
+    const EMOJIS = ["💖","❤️","💘","🌸","🌷","🌹","🌼","💐"];
+    function burstEmojiConfettiAt(x, y, count = 120) {
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) return;
+      for (let i = 0; i < count; i++) {
+        const span = document.createElement("span");
+        span.className = "emoji-confetti";
+        span.textContent = EMOJIS[i % EMOJIS.length];
 
-        setTimeout(() => heart.remove(), 4000);
-      }, 300);
+        // randomized vector
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 130 + Math.random() * 280;
+        const dx = Math.cos(angle) * distance + "px";
+        const dy = Math.sin(angle) * distance + "px";
+        const rot = (Math.random() * 720 - 360) + "deg";
+        const scale = (0.85 + Math.random() * 0.8).toFixed(2);
+
+        span.style.left = x + "px";
+        span.style.top  = y + "px";
+        span.style.fontSize = (18 + Math.random() * 14) + "px";
+        span.style.setProperty("--dx", dx);
+        span.style.setProperty("--dy", dy);
+        span.style.setProperty("--rot", rot);
+        span.style.setProperty("--scale", scale);
+
+        document.body.appendChild(span);
+        setTimeout(() => span.remove(), 1100);
+      }
     }
 
-    noBtn.addEventListener("mouseover", () => {
+    function getBurstPointFromEvent(e, fallbackEl){
+      if (e && typeof e.clientX === "number" && typeof e.clientY === "number") {
+        return { x: e.clientX, y: e.clientY };
+      }
+      const r = fallbackEl.getBoundingClientRect();
+      return { x: r.left + r.width/2, y: r.top + r.height/2 };
+    }
+
+    // ====== Place "No" initially without overlapping "Yes" ======
+    window.addEventListener("load", lockNoPosition);
+    window.addEventListener("resize", clampNoPosition);
+
+    function lockNoPosition(){
+      // Measure natural flex spots, then freeze #no there (absolute) so they stay separate
+      const wrapRect = btnWrap.getBoundingClientRect();
+      const noRect   = noBtn.getBoundingClientRect();
+      const left = noRect.left - wrapRect.left;
+      const top  = noRect.top  - wrapRect.top;
       noBtn.style.position = "absolute";
-      noBtn.style.left = Math.random() * 80 + "vw";
-      noBtn.style.top = Math.random() * 80 + "vh";
+      noBtn.style.left = `${left}px`;
+      noBtn.style.top  = `${top}px`;
+      noBtn.style.transform = "translate(0,0)";
+    }
+    function clampNoPosition(){
+      // Keep #no inside the buttons box after resize/orientation change
+      const wrapRect = btnWrap.getBoundingClientRect();
+      const noRect   = noBtn.getBoundingClientRect();
+      let x = parseFloat(noBtn.style.left || "0");
+      let y = parseFloat(noBtn.style.top  || "0");
+      const pad = 4;
+      const maxX = Math.max(pad, wrapRect.width  - noRect.width  - pad);
+      const maxY = Math.max(pad, wrapRect.height - noRect.height - pad);
+      x = Math.min(Math.max(pad, x), maxX);
+      y = Math.min(Math.max(pad, y), maxY);
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top  = `${y}px`;
+    }
+
+    // ====== "No" dodges + "Yes" grows 1–2x ======
+    const rand    = (min, max) => Math.random() * (max - min) + min;
+    const randInt = (min, max) => Math.floor(rand(min, max + 1));
+
+    function growYesOnce(){
+      const scale = rand(1.2, 2.0).toFixed(2);
+      yesBtn.style.setProperty("--grow-to", scale);
+      yesBtn.classList.remove("grow");
+      void yesBtn.offsetWidth; // restart animation
+      yesBtn.classList.add("grow");
+    }
+
+    function moveNo(){
+      const maxAttempts = 14;
+      const wrapRect = btnWrap.getBoundingClientRect();
+      const yesRect  = yesBtn.getBoundingClientRect();
+      const noRect   = noBtn.getBoundingClientRect();
+      const pad = 4;
+      const maxX = wrapRect.width  - noRect.width  - pad*2;
+      const maxY = wrapRect.height - noRect.height - pad*2;
+
+      for (let i = 0; i < maxAttempts; i++) {
+        const x = randInt(pad, Math.max(pad, Math.floor(maxX)));
+        const y = randInt(pad, Math.max(pad, Math.floor(maxY)));
+
+        const proposedLeft = wrapRect.left + x;
+        const proposedTop  = wrapRect.top  + y;
+
+        const overlap = !(
+          proposedLeft + noRect.width  < yesRect.left  ||
+          proposedLeft                 > yesRect.right ||
+          proposedTop  + noRect.height < yesRect.top   ||
+          proposedTop                  > yesRect.bottom
+        );
+        if (!overlap) {
+          noBtn.style.left = `${x}px`;
+          noBtn.style.top  = `${y}px`;
+          growYesOnce();
+          return;
+        }
+      }
+      // fallback
+      noBtn.style.left = `${randInt(pad, Math.max(pad, Math.floor(maxX)))}px`;
+      noBtn.style.top  = `${randInt(pad, Math.max(pad, Math.floor(maxY)))}px`;
+      growYesOnce();
+    }
+
+    ["pointerover","pointerdown","mouseenter","touchstart","focus"].forEach(evt => {
+      noBtn.addEventListener(evt, (e) => {
+        e.preventDefault();
+        moveNo();
+        noBtn.blur();
+      }, { passive: true });
     });
+    noBtn.addEventListener("click", (e) => { e.preventDefault(); moveNo(); }, { passive: false });
 
-    yesBtn.addEventListener("click", () => {
+    // ====== WhatsApp opener (popup-safe) ======
+    function openWhatsAppAfter(delayMs){
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
-      /* 📲 Open blank tab immediately (prevents popup blocking) */
-      const waTab = window.open("", "_blank");
+      // Pre-open a blank tab on the *user gesture* to avoid popup blockers
+      const newTab = window.open("", "_blank");
 
-      /* 🎶 Music */
-      song.play();
+      setTimeout(() => {
+        if (newTab && !newTab.closed) {
+          newTab.location = waUrl;
+        } else {
+          // Fallback: open in current tab
+          window.location.href = waUrl;
+        }
+      }, delayMs);
+    }
 
-      /* 🎉 Confetti */
-      confettiBurst();
-      setTimeout(confettiBurst, 300);
-      setTimeout(confettiBurst, 600);
+    // ====== YES click ======
+    yesBtn.addEventListener("click", (e) => {
+      // Try to play music (browsers allow this because it's in a user gesture)
+      if (song) {
+        const p = song.play();
+        if (p && typeof p.catch === "function") p.catch(() => {/* ignore */});
+      }
 
-      /* 🚫 Remove NO button */
+      // Confetti from click/tap point (with a small 2nd wave)
+      const pt = getBurstPointFromEvent(e, card);
+      burstEmojiConfettiAt(pt.x, pt.y, 140);
+      setTimeout(() => burstEmojiConfettiAt(pt.x, pt.y, 90), 180);
+
+      // Remove NO (optional)
       noBtn.remove();
 
-      /* 💖 Update card */
+      // Success content
       card.innerHTML = `
-        <img src="peter.jpg" class="avatar">
-        <h1>Yay!! 💖</h1>
-        <p>You just made me the happiest person alive 🥹❤️</p>
+        <img src="peter.jpg" class="avatar" alt="Photo" />
+        <h1 class="pop">Yay!! 💖</h1>
+        <p class="pop">You just made me the happiest person alive 🥹❤️</p>
       `;
 
-      /* 💕 Hearts */
+      // Floating hearts celebration
       startHearts();
 
-      /* 💌 Extra message */
-      setTimeout(() => {
-        card.innerHTML += `<p>Happy Valentine’s Day 💌</p>`;
-      }, 2000);
-
-      /* ⏱ WhatsApp opens AFTER 7 seconds */
-      setTimeout(() => {
-        const yourNumber = "3172468303";
-        const message = encodeURIComponent(
-          "I said YES 💖🥹 Happy Valentine’s Day 😘"
-        );
-
-        waTab.location.href =
-          `https://wa.me/${yourNumber}?text=${message}`;
-      }, 7000);
+      // Open WhatsApp AFTER animations finish (adjust the delay as desired)
+      openWhatsAppAfter(2600);
     });
   </script>
-
 </body>
 </html>
