@@ -4,305 +4,196 @@
   <meta charset="UTF-8" />
   <title>Will You Be My Valentine? 💖</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --pink:#ff4d6d;
-      --bg1:#ff9a9e;
-      --bg2:#fad0c4;
-      --shadow:0 10px 30px rgba(0,0,0,.15);
-      --radius:25px;
-
-      --text:#222;
-      --muted:#666;
-      --card:#fff;
-      --btn:#eee;
-      --yes-bg:var(--pink);
-      --yes-fg:#fff;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      font-family: 'Poppins', sans-serif;
+      display: flex; justify-content: center; align-items: center;
+      padding: 16px;
     }
 
-    /* THEME: Lavender */
-    [data-theme="lavender"]{
-      --pink:#a56cff;
-      --bg1:#c8b6ff;
-      --bg2:#e7c6ff;
-      --card:#ffffff;
-      --btn:#f0eefc;
-      --text:#231942;
-      --muted:#5e548e;
-      --yes-bg:#a56cff;
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 25px;
+      text-align: center;
+      width: min(92vw, 360px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      position: relative;
     }
 
-    /* THEME: Dark */
-    [data-theme="dark"]{
-      --pink:#ff6b91;
-      --bg1:#222;
-      --bg2:#111;
-      --card:#1b1b1b;
-      --btn:#2a2a2a;
-      --text:#f4f4f4;
-      --muted:#bdbdbd;
-      --yes-bg:#ff6b91;
+    img.avatar {
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #ff4d6d;
+      margin-bottom: 15px;
+      display: block; margin-left: auto; margin-right: auto;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      min-height:100%;
-      background:linear-gradient(135deg,var(--bg1),var(--bg2));
-      font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:16px;
-      color:var(--text);
+    h1 { color: #ff4d6d; margin: 0 0 6px; }
+    p  { margin: 8px 0 0; color: #444; }
+
+    .buttons {
+      position: relative;           /* keeps #no inside this region */
+      height: 80px;                 /* room so the Yes can grow without layout jump */
+      display: flex; justify-content: center; align-items: center;
+      gap: 15px;
+      margin-top: 20px;
+      user-select: none;
+      touch-action: manipulation;
     }
 
-    .card{
-      background:var(--card);
-      padding:30px 28px 36px;
-      border-radius:var(--radius);
-      text-align:center;
-      width:min(92vw,380px);
-      box-shadow:var(--shadow);
-      position:relative;
+    button {
+      padding: 12px 22px;
+      border-radius: 30px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
     }
 
-    /* Top controls (theme + mute + share) */
-    .toolbar{
-      position:absolute;
-      top:10px; right:10px;
-      display:flex; gap:8px; align-items:center;
-    }
-    .chip{
-      border:none; border-radius:999px; padding:6px 10px;
-      background:var(--btn); color:var(--text);
-      font-size:12px; cursor:pointer;
-      transition:transform .15s ease;
-    }
-    .chip:hover{ transform:translateY(-1px); }
-    .chip[aria-pressed="true"]{
-      outline:2px solid var(--pink);
-      outline-offset:2px;
-    }
-    .icon-btn{
-      width:34px; height:34px; border-radius:999px;
-      display:grid; place-items:center;
-      border:none; background:var(--btn); color:var(--text);
-      cursor:pointer;
-    }
-    .icon-btn:focus-visible, .chip:focus-visible{
-      outline:3px solid var(--text); outline-offset:2px;
+    #yes {
+      background: #ff4d6d; color: white;
+      position: relative; z-index: 2;       /* keep on top while it grows */
+      transform-origin: center center;
+      transition: transform .15s ease;      /* quick hover/feel */
     }
 
-    .avatar{
-      width:180px; aspect-ratio:1/1;
-      border-radius:50%;
-      object-fit:cover;
-      border:4px solid var(--pink);
-      margin:0 auto 16px;
-      display:block;
-    }
-
-    h1{
-      color:var(--pink);
-      font-size:1.6rem;
-      line-height:1.3;
-      margin:0 0 6px;
-    }
-    p{ margin:8px 0 0; color:var(--muted); }
-
-    .buttons{
-      position:relative; /* keeps "No" inside */
-      height:60px;       /* reserves space so layout doesn't jump */
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:14px;
-      margin-top:20px;
-      user-select:none;
-      touch-action:manipulation;
-    }
-
-    button.primary{
-      padding:12px 22px;
-      border-radius:30px;
-      border:none;
-      font-size:16px;
-      cursor:pointer;
-      transition:transform .15s ease, box-shadow .15s ease, background .2s ease, color .2s ease;
-    }
-    button.primary:focus-visible{
-      outline:3px solid var(--text);
-      outline-offset:3px;
-    }
-    #yes{
-      background:var(--yes-bg);
-      color:var(--yes-fg);
-      box-shadow:0 4px 14px rgba(0,0,0,.25);
-    }
-    #yes:hover{ transform:translateY(-1px); }
-    #no{
-      background:var(--btn);
-      color:var(--muted);
-      position:absolute; /* precise placement within .buttons */
-      left:50%; top:50%;
-      transform:translate(-50%,-50%);
+    #no {
+      background: #ddd; color: #555;
+      position: absolute;                   /* we place it precisely inside .buttons */
+      left: 0; top: 0;                      /* initial values will be set by JS to avoid overlap */
+      transform: translate(0,0);
     }
 
     /* Hearts floating up the screen */
-    .heart{
-      position:fixed;
-      bottom:-20px;
-      font-size:22px;
-      animation:floatUp 4s linear forwards;
-      pointer-events:none;
-      will-change:transform,opacity;
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      font-size: 22px;
+      animation: floatUp 4s linear forwards;
+      pointer-events: none;
     }
-    @keyframes floatUp{
-      to{
-        transform:translateY(-110vh);
-        opacity:0;
-      }
+    @keyframes floatUp {
+      to { transform: translateY(-110vh); opacity: 0; }
     }
 
-    .pop{ animation:pop .6s ease both; }
-    @keyframes pop{
-      0%{ transform:scale(0); }
-      80%{ transform:scale(1.08); }
-      100%{ transform:scale(1); }
+    /* Small pop animation you had */
+    .pop { animation: pop .6s ease both; }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
 
-    /* Confetti */
-    .confetti{
-      position:fixed;
-      top:50%; left:50%;
-      width:8px; height:12px;
-      border-radius:2px;
-      will-change:transform,opacity;
-      pointer-events:none;
-      transform:translate(-50%,-50%);
-      animation:confettiFall 1000ms cubic-bezier(.15,.65,.35,1) forwards;
+    /* Grow animation for YES (scale to a CSS var then come back) */
+    .grow {
+      animation: growPulse .45s ease;
     }
-    @keyframes confettiFall{
-      0%   { transform:translate(-50%,-50%) rotate(0deg); opacity:1; }
-      100% { transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); opacity:0; }
+    @keyframes growPulse {
+      0%   { transform: scale(1); }
+      60%  { transform: scale(var(--grow-to, 1.6)); }
+      100% { transform: scale(1); }
     }
-
-    .toast{
-      position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
-      background:rgba(0,0,0,.8); color:#fff;
-      padding:10px 14px; border-radius:10px; font-size:14px;
-      opacity:0; pointer-events:none;
-      transition:opacity .2s ease, transform .2s ease;
-    }
-    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
 
     /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce){
       * { animation: none !important; transition: none !important; }
-      .heart,.confetti{ display:none !important; }
+      .heart { display: none !important; }
     }
   </style>
 </head>
 <body>
-  <main class="card" id="card" aria-live="polite">
-    <div class="toolbar" aria-label="Controls">
-      <!-- Theme chips -->
-      <button class="chip" data-theme="pink"     aria-pressed="true" title="Theme: Pink">Pink</button>
-      <button class="chip" data-theme="lavender" aria-pressed="false" title="Theme: Lavender">Lavender</button>
-      <button class="chip" data-theme="dark"     aria-pressed="false" title="Theme: Dark">Dark</button>
-      <!-- Mute + Share -->
-      <button id="muteBtn" class="icon-btn" aria-pressed="false" title="Mute / Unmute" aria-label="Mute">
-        🔊
-      </button>
-      <button id="shareBtn" class="icon-btn" title="Share this" aria-label="Share">
-        🔗
-      </button>
-    </div>
 
-    <img id="avatar" class="avatar" src="./peter.jpg" alt="Photo" loading="lazy" />
-
+  <div class="card" id="card" aria-live="polite">
+    <img src="./peter.jpg" alt="photo" class="avatar" id="avatar">
     <h1>Will you be my Valentine? 💘</h1>
     <p>Say yes and make my day! 🌷</p>
 
     <div class="buttons" id="btnWrap" aria-label="Answer choices">
-      <button id="yes" type="button" class="primary" aria-label="Yes">Yes 💖</button>
-      <button id="no"  type="button" class="primary" aria-label="No">No 🙈</button>
+      <button id="yes" type="button">Yes 💖</button>
+      <button id="no"  type="button">No 🙈</button>
     </div>
-  </main>
-
-  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  </div>
 
   <script>
-    // ========= Config =========
-    const IMG_SRC = "./peter.jpg"; // set to your image filename or URL
-    const DEFAULT_THEME = localStorage.getItem("val-theme") || "pink";
-
-    // ========= Elements =========
     const yesBtn  = document.getElementById("yes");
     const noBtn   = document.getElementById("no");
     const card    = document.getElementById("card");
     const btnWrap = document.getElementById("btnWrap");
-    const avatar  = document.getElementById("avatar");
-    const toastEl = document.getElementById("toast");
-    const themeChips = [...document.querySelectorAll(".chip")];
-    const muteBtn = document.getElementById("muteBtn");
-    const shareBtn = document.getElementById("shareBtn");
 
-    // ========= State =========
+    // ============ Hearts on YES ============
+    function startHearts(){
+      stopHearts();
+      heartTimer = setInterval(() => {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.textContent = Math.random() < 0.3 ? "💘" : "❤️";
+        heart.style.left = (Math.random() * 100) + "vw";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4200);
+      }, 250);
+    }
+    function stopHearts(){
+      if (heartTimer != null){ clearInterval(heartTimer); heartTimer = null; }
+    }
     let heartTimer = null;
-    let mute = JSON.parse(localStorage.getItem("val-mute") || "false");
 
-    // ========= Theme =========
-    function applyTheme(theme){
-      document.documentElement.setAttribute("data-theme", theme === "pink" ? "" : theme);
-      themeChips.forEach(c => c.setAttribute("aria-pressed", String(c.dataset.theme === theme)));
-      localStorage.setItem("val-theme", theme);
-    }
-    themeChips.forEach(chip => chip.addEventListener("click", () => applyTheme(chip.dataset.theme)));
-    applyTheme(DEFAULT_THEME);
-
-    // ========= Mute =========
-    function updateMuteUI(){
-      muteBtn.setAttribute("aria-pressed", String(mute));
-      muteBtn.textContent = mute ? "🔇" : "🔊";
-      muteBtn.setAttribute("aria-label", mute ? "Unmute" : "Mute");
-      localStorage.setItem("val-mute", JSON.stringify(mute));
-    }
-    muteBtn.addEventListener("click", () => { mute = !mute; updateMuteUI(); });
-    updateMuteUI();
-
-    // ========= Image preload (helps when swapping) =========
-    const imgPreload = new Image();
-    imgPreload.src = IMG_SRC;
-
-    // ========= Dodge logic for "No" =========
-    window.addEventListener("load", () => lockNoPosition());
-    window.addEventListener("resize", () => moveNo()); // light re-clamp after resize/orientation
+    // ============ Place "No" away from "Yes" (no overlap at start) ============
+    window.addEventListener("load", lockNoPosition);
+    window.addEventListener("resize", clampNoPosition);
 
     function lockNoPosition(){
+      // Measure their natural positions in the flex layout, then freeze #no there (absolute)
       const wrapRect = btnWrap.getBoundingClientRect();
       const noRect   = noBtn.getBoundingClientRect();
       const left = noRect.left - wrapRect.left;
       const top  = noRect.top  - wrapRect.top;
+
       noBtn.style.position = "absolute";
       noBtn.style.left = `${left}px`;
       noBtn.style.top  = `${top}px`;
       noBtn.style.transform = "translate(0,0)";
     }
 
-    const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    function clampNoPosition(){
+      // Keep #no inside the buttons box after resize/orientation change
+      const wrapRect = btnWrap.getBoundingClientRect();
+      const noRect   = noBtn.getBoundingClientRect();
+      let x = parseFloat(noBtn.style.left || "0");
+      let y = parseFloat(noBtn.style.top  || "0");
+      const pad = 4;
+      const maxX = Math.max(pad, wrapRect.width  - noRect.width  - pad);
+      const maxY = Math.max(pad, wrapRect.height - noRect.height - pad);
+      x = Math.min(Math.max(pad, x), maxX);
+      y = Math.min(Math.max(pad, y), maxY);
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top  = `${y}px`;
+    }
+
+    // ============ Make "No" dodge AND make "Yes" grow 1–2x ============
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const randInt = (min, max) => Math.floor(rand(min, max + 1));
+
+    function growYesOnce(){
+      // Pick a random scale between 1.2 and 2.0
+      const scale = rand(1.2, 2.0).toFixed(2);
+      yesBtn.style.setProperty("--grow-to", scale);
+      yesBtn.classList.remove("grow"); // restart animation if already active
+      // Force reflow to restart the animation reliably
+      // eslint-disable-next-line no-unused-expressions
+      void yesBtn.offsetWidth;
+      yesBtn.classList.add("grow");
+    }
 
     function moveNo(){
-      const maxAttempts = 12;
-
+      const maxAttempts = 14;
       const wrapRect = btnWrap.getBoundingClientRect();
       const yesRect  = yesBtn.getBoundingClientRect();
       const noRect   = noBtn.getBoundingClientRect();
@@ -311,10 +202,11 @@
       const maxX = wrapRect.width  - noRect.width  - pad*2;
       const maxY = wrapRect.height - noRect.height - pad*2;
 
-      for (let i=0;i<maxAttempts;i++){
+      for (let i = 0; i < maxAttempts; i++) {
         const x = randInt(pad, Math.max(pad, Math.floor(maxX)));
         const y = randInt(pad, Math.max(pad, Math.floor(maxY)));
 
+        // Predict proposed rect for "No"
         const proposedLeft = wrapRect.left + x;
         const proposedTop  = wrapRect.top  + y;
 
@@ -324,194 +216,42 @@
           proposedTop  + noRect.height < yesRect.top   ||
           proposedTop                  > yesRect.bottom
         );
-        if (!overlap){
+
+        if (!overlap) {
           noBtn.style.left = `${x}px`;
           noBtn.style.top  = `${y}px`;
-          playDodgeSound();
+          growYesOnce();  // make YES grow every time NO dodges
           return;
         }
       }
-      // fallback
+
+      // Fallback: still move somewhere (clamped)
       noBtn.style.left = `${randInt(pad, Math.max(pad, Math.floor(maxX)))}px`;
       noBtn.style.top  = `${randInt(pad, Math.max(pad, Math.floor(maxY)))}px`;
-      playDodgeSound();
+      growYesOnce();
     }
 
-    const dodgeEvents = ["pointerover","pointerdown","focus"];
-    dodgeEvents.forEach(evt => noBtn.addEventListener(evt, (e) => {
-      e.preventDefault();
-      moveNo();
-      noBtn.blur();
-    }, { passive: true }));
-    noBtn.addEventListener("click", (e) => { e.preventDefault(); moveNo(); }, { passive: false });
-
-    // ========= YES handler =========
-    yesBtn.addEventListener("click", () => {
-      card.innerHTML = `
-        <div class="toolbar" aria-label="Controls">
-          ${document.querySelector(".toolbar").innerHTML}
-        </div>
-        <img class="avatar pop" src="${IMG_SRC}" alt="Photo" loading="lazy" />
-        <h1 class="pop">Yay!! 💖</h1>
-        <p class="pop" style="margin-top:6px;">Awww, you love me! 😍</p>
-      `;
-      // Re-bind toolbar buttons inside new HTML
-      rebindToolbar();
-      startHearts();
-      burstConfetti();
-      playYesSound();
+    // Dodge when someone *tries* to click or hover/focus "No"
+    ["pointerover","pointerdown","mouseenter","touchstart","focus"].forEach(evt => {
+      noBtn.addEventListener(evt, (e) => {
+        e.preventDefault();
+        moveNo();
+        noBtn.blur();
+      }, { passive: true });
     });
 
-    function rebindToolbar(){
-      // After replacing card contents, toolbar elements are new
-      const newToolbar = card.querySelector(".toolbar");
-      const chips = [...newToolbar.querySelectorAll(".chip")];
-      chips.forEach(chip => chip.addEventListener("click", () => applyTheme(chip.dataset.theme)));
-      const newMute = newToolbar.querySelector("#muteBtn");
-      const newShare= newToolbar.querySelector("#shareBtn");
-      newMute.addEventListener("click", () => { mute = !mute; updateMuteUI(); });
-      newShare.addEventListener("click", shareIt);
-      // sync current states
-      updateMuteUI();
-      applyTheme(localStorage.getItem("val-theme") || "pink");
-    }
+    // If a click sneaks through, dodge anyway
+    noBtn.addEventListener("click", (e) => { e.preventDefault(); moveNo(); }, { passive: false });
 
-    // ========= Hearts =========
-    function startHearts(){
-      stopHearts();
-      heartTimer = setInterval(() => {
-        const heart = document.createElement("div");
-        heart.className = "heart";
-        heart.textContent = Math.random() < 0.3 ? "💘" : "❤️";
-        heart.style.left = (Math.random() * 100) + "vw";
-        heart.style.filter = `hue-rotate(${Math.random()*30 - 15}deg)`;
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 4200);
-      }, 250);
-    }
-    function stopHearts(){
-      if (heartTimer != null){
-        clearInterval(heartTimer);
-        heartTimer = null;
-      }
-    }
-
-    // ========= Confetti =========
-    function burstConfetti(count = 120){
-      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (prefersReduced) return;
-      const colors = ["#ff4d6d","#ffd166","#06d6a0","#118ab2","#ef476f","#8338ec","#ff9f1c"];
-      for (let i=0;i<count;i++){
-        const piece = document.createElement("div");
-        piece.className = "confetti";
-        const color = colors[i % colors.length];
-        const dx = (Math.random() * 600 - 300) + "px"; // spread horizontally
-        const dy = (Math.random() * 800 + 300) + "px"; // fall down
-        const rot = (Math.random() * 720 - 360) + "deg";
-        piece.style.background = color;
-        piece.style.setProperty("--dx", dx);
-        piece.style.setProperty("--dy", dy);
-        piece.style.setProperty("--rot", rot);
-        // randomize size a bit
-        piece.style.width  = (6 + Math.random()*6) + "px";
-        piece.style.height = (8 + Math.random()*10) + "px";
-        document.body.appendChild(piece);
-        setTimeout(() => piece.remove(), 1100);
-      }
-    }
-
-    // ========= Sounds (WebAudio, no files) =========
-    const audioCtxSingleton = (() => {
-      let ctx = null;
-      return () => {
-        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-        return ctx;
-      };
-    })();
-
-    function playTone({ freq=440, type="sine", duration=0.12, gain=0.06, start=0 }){
-      if (mute) return;
-      try {
-        const ctx = audioCtxSingleton();
-        const t0 = ctx.currentTime + start;
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = type;
-        o.frequency.setValueAtTime(freq, t0);
-        g.gain.setValueAtTime(0, t0);
-        g.gain.linearRampToValueAtTime(gain, t0 + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
-        o.connect(g).connect(ctx.destination);
-        o.start(t0);
-        o.stop(t0 + duration + 0.02);
-      } catch(e){ /* ignore */ }
-    }
-
-    function playYesSound(){
-      // A cute ascending triad
-      playTone({ freq:523.25, type:"triangle", duration:0.12, gain:0.06, start:0.00 }); // C5
-      playTone({ freq:659.25, type:"triangle", duration:0.12, gain:0.06, start:0.10 }); // E5
-      playTone({ freq:783.99, type:"triangle", duration:0.16, gain:0.06, start:0.20 }); // G5
-    }
-
-    function playDodgeSound(){
-      // A quick "whoop" downward glide
-      if (mute) return;
-      try {
-        const ctx = audioCtxSingleton();
-        const t0 = ctx.currentTime;
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = "sawtooth";
-        o.frequency.setValueAtTime(900, t0);
-        o.frequency.exponentialRampToValueAtTime(300, t0 + 0.12);
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.08, t0 + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
-        o.connect(g).connect(ctx.destination);
-        o.start(t0);
-        o.stop(t0 + 0.2);
-      } catch(e){ /* ignore */ }
-    }
-
-    // ========= Share =========
-    function toast(msg){
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      setTimeout(() => toastEl.classList.remove("show"), 1800);
-    }
-
-    async function shareIt(){
-      const text = "Will you be my Valentine? 💘";
-      const url  = location.href; // will be your GitHub Pages URL after deploy
-      if (navigator.share){
-        try{
-          await navigator.share({ title: document.title, text, url });
-        }catch(e){
-          // user canceled or share failed—ignore quietly
-        }
-      } else if (navigator.clipboard) {
-        try{
-          await navigator.clipboard.writeText(`${text}\n${url}`);
-          toast("Link copied to clipboard! 🔗");
-        }catch{
-          toast("Copy failed—press Ctrl/Cmd+C");
-        }
-      } else {
-        // Fallback: prompt
-        const area = document.createElement("textarea");
-        area.value = `${text}\n${url}`;
-        document.body.appendChild(area);
-        area.select(); document.execCommand("copy");
-        area.remove();
-        toast("Link copied! 🔗");
-      }
-    }
-    shareBtn.addEventListener("click", shareIt);
-
-    // ========= Ensure the avatar uses your IMG_SRC =========
-    avatar.src = IMG_SRC;
-
+    // ============ YES action (kept your heart celebration) ============
+    yesBtn.addEventListener("click", () => {
+      card.innerHTML = `
+        <img src="./peter.jpg" class="avatar pop" alt="photo">
+        <h1 class="pop">Yay!! 💖</h1>
+        <p class="pop">Awww, you love me! 😍</p>
+      `;
+      startHearts();
+    });
   </script>
 </body>
 </html>
