@@ -23,7 +23,6 @@ body {
   animation: bgMove 15s ease infinite;
 }
 
-/* Animated background */
 @keyframes bgMove {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -41,6 +40,21 @@ body {
   color: rgba(255,255,255,0.9);
   text-shadow: 0 2px 6px rgba(0,0,0,0.25);
   pointer-events: none;
+  z-index: 9999;
+}
+
+/* Mute button */
+.audio-btn {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   z-index: 9999;
 }
 
@@ -87,7 +101,6 @@ button {
   transition: transform .2s;
 }
 
-/* YES button */
 #yes {
   background: #ff4d6d;
   color: white;
@@ -102,7 +115,6 @@ button {
   100% { transform: translateX(-120%) scale(1); }
 }
 
-/* NO button */
 #no {
   background: #eee;
   color: #555;
@@ -142,8 +154,11 @@ button {
 
 <body>
 
-<!-- Top cursive name -->
-<div class="signature">Latifat Badmus</div>
+<!-- Signature -->
+<div class="signature">Peter Osibajo</div>
+
+<!-- Mute button -->
+<button class="audio-btn" id="audioToggle">🔇</button>
 
 <div class="card" id="card">
   <img src="peter.jpg" class="avatar">
@@ -156,13 +171,26 @@ button {
   </div>
 </div>
 
-<audio id="loveSong" src="love.mp3"></audio>
+<!-- AUDIO -->
+<audio id="loveSong" loop>
+  <source src="Barney - I Love You (SONG with LYRICS).mp3" type="audio/mpeg">
+</audio>
 
 <script>
 const yesBtn = document.getElementById("yes");
 const noBtn = document.getElementById("no");
 const card = document.getElementById("card");
 const song = document.getElementById("loveSong");
+const audioBtn = document.getElementById("audioToggle");
+
+let audioOn = false;
+
+/* Mute / Unmute */
+audioBtn.addEventListener("click", () => {
+  audioOn = !audioOn;
+  song.muted = !audioOn;
+  audioBtn.textContent = audioOn ? "🔊" : "🔇";
+});
 
 /* NO button phrases */
 const noTexts = [
@@ -176,11 +204,9 @@ const noTexts = [
 ];
 let noIndex = 0;
 
-/* NO dodges + text changes */
 function moveNo() {
   const x = Math.random() * 220 - 110;
   const y = Math.random() * 60 - 30;
-
   noBtn.style.transform = `translate(${x}px, ${y}px)`;
   noBtn.textContent = noTexts[noIndex];
   noIndex = (noIndex + 1) % noTexts.length;
@@ -201,7 +227,7 @@ function startHearts() {
   }, 250);
 }
 
-/* Confetti burst */
+/* Confetti */
 function confettiBurst() {
   const emojis = ["💖","❤️","💘","🌸","🌷","🌹"];
   const cx = innerWidth / 2;
@@ -227,7 +253,10 @@ function confettiBurst() {
 
 /* YES click */
 yesBtn.addEventListener("click", () => {
+  song.muted = false;
   song.play();
+  audioOn = true;
+  audioBtn.textContent = "🔊";
 
   confettiBurst();
   setTimeout(confettiBurst, 400);
@@ -253,4 +282,3 @@ yesBtn.addEventListener("click", () => {
 
 </body>
 </html>
-
