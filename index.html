@@ -29,7 +29,7 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* Top signature */
+/* Signature */
 .signature {
   position: fixed;
   top: 14px;
@@ -43,7 +43,7 @@ body {
   z-index: 9999;
 }
 
-/* Mute button */
+/* Audio button */
 .audio-btn {
   position: fixed;
   top: 14px;
@@ -98,7 +98,6 @@ button {
   font-size: 16px;
   cursor: pointer;
   position: absolute;
-  transition: transform .2s;
 }
 
 #yes {
@@ -149,15 +148,33 @@ button {
     opacity: 0;
   }
 }
+
+/* Butterflies */
+.butterfly {
+  position: fixed;
+  font-size: 26px;
+  pointer-events: none;
+  animation: fly linear forwards;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(0,0) scale(0.8);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(1.1) rotate(360deg);
+    opacity: 0;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<!-- Signature -->
-<div class="signature">Latifat Badmus </div>
-
-<!-- Mute button -->
+<div class="signature">Latifat Badmus</div>
 <button class="audio-btn" id="audioToggle">🔇</button>
 
 <div class="card" id="card">
@@ -171,7 +188,6 @@ button {
   </div>
 </div>
 
-<!-- AUDIO -->
 <audio id="loveSong" loop>
   <source src="Barney - I Love You (SONG with LYRICS).mp3" type="audio/mpeg">
 </audio>
@@ -185,23 +201,15 @@ const audioBtn = document.getElementById("audioToggle");
 
 let audioOn = false;
 
-/* Mute / Unmute */
+/* Audio toggle */
 audioBtn.addEventListener("click", () => {
   audioOn = !audioOn;
   song.muted = !audioOn;
   audioBtn.textContent = audioOn ? "🔊" : "🔇";
 });
 
-/* NO button phrases */
-const noTexts = [
-  "No 🙈",
-  "Damn 😭",
-  "C’mon 😅",
-  "Seriously? 🥺",
-  "Pleaseee 💔",
-  "You’re mean 😩",
-  "Last chance 😳"
-];
+/* NO button movement */
+const noTexts = ["No 🙈","Damn 😭","C’mon 😅","Seriously? 🥺","Pleaseee 💔","You’re mean 😩","Last chance 😳"];
 let noIndex = 0;
 
 function moveNo() {
@@ -215,7 +223,7 @@ function moveNo() {
 noBtn.addEventListener("mouseenter", moveNo);
 noBtn.addEventListener("click", moveNo);
 
-/* Floating hearts */
+/* Hearts */
 function startHearts() {
   setInterval(() => {
     const h = document.createElement("div");
@@ -251,35 +259,5 @@ function confettiBurst() {
   }
 }
 
-/* YES click */
-yesBtn.addEventListener("click", () => {
-  song.muted = false;
-  song.play();
-  audioOn = true;
-  audioBtn.textContent = "🔊";
-
-  confettiBurst();
-  setTimeout(confettiBurst, 400);
-
-  noBtn.remove();
-
-  card.innerHTML = `
-    <img src="peter.jpg" class="avatar">
-    <h1>Yay!! 💖</h1>
-    <p>You just made me the happiest person alive 🥹❤️</p>
-  `;
-
-  startHearts();
-
-  setTimeout(() => {
-    window.open(
-      "https://wa.me/3172468303?text=I%20said%20YES%20💖🥹%20Happy%20Valentine’s%20Day",
-      "_blank"
-    );
-  }, 2600);
-});
-</script>
-
-</body>
-</html>
-
+/* Butterflies */
+function startButte
