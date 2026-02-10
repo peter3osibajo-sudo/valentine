@@ -28,7 +28,6 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* Signature */
 .signature {
   position: fixed;
   top: 14px;
@@ -40,7 +39,6 @@ body {
   z-index: 9999;
 }
 
-/* Audio button */
 .audio-btn {
   position: fixed;
   top: 14px;
@@ -130,17 +128,16 @@ button {
   }
 }
 
-/* ================= SVG BUTTERFLY ================= */
+/* ===== SVG BUTTERFLY ===== */
 
 .butterfly-container {
   position: fixed;
   left: -100px;
-  top: 50%;
   width: 80px;
   height: 80px;
   pointer-events: none;
 
-  --PI: 3.141592653589793;
+  --PI: 3.14159;
   --progress: 0;
   --r-min: 10;
   --r-max: 60;
@@ -163,15 +160,7 @@ button {
   }
 }
 
-.butterfly {
-  width: 80px;
-  height: 80px;
-  color: hotpink;
-}
-
-.butterfly path {
-  fill: currentColor;
-}
+.butterfly path { fill: hotpink; }
 
 .butterfly__wing {
   transform-origin: center center;
@@ -195,12 +184,14 @@ button {
   <h1>Will you be my Valentine? 💘</h1>
   <p>Life is sweeter with you in it 💕</p>
 
+  <!-- ✅ YOUR BUTTONS -->
   <div class="buttons">
     <button id="yes">Yes 💖</button>
     <button id="no">No 🙈</button>
   </div>
 </div>
 
+<!-- ✅ AUDIO -->
 <audio id="loveSong" loop>
   <source src="Barney - I Love You (SONG with LYRICS).mp3" type="audio/mpeg">
 </audio>
@@ -208,19 +199,17 @@ button {
 <!-- Butterfly template -->
 <template id="butterflyTemplate">
   <div class="butterfly-container">
-    <div class="butterfly">
-      <svg viewBox="0 0 200 100">
-        <g class="butterfly__wing">
-          <path d="M100 50 C20 10, 20 90, 100 50Z"/>
-        </g>
-        <g class="butterfly__wing">
-          <path d="M100 50 C180 10, 180 90, 100 50Z"/>
-        </g>
-        <g class="butterfly__body">
-          <path d="M95 30 L105 30 L110 70 L90 70 Z"/>
-        </g>
-      </svg>
-    </div>
+    <svg viewBox="0 0 200 100" class="butterfly">
+      <g class="butterfly__wing">
+        <path d="M100 50 C20 10, 20 90, 100 50Z"/>
+      </g>
+      <g class="butterfly__wing">
+        <path d="M100 50 C180 10, 180 90, 100 50Z"/>
+      </g>
+      <g class="butterfly__body">
+        <path d="M95 30 L105 30 L110 70 L90 70 Z"/>
+      </g>
+    </svg>
   </div>
 </template>
 
@@ -231,18 +220,33 @@ const card = document.getElementById("card");
 const song = document.getElementById("loveSong");
 const audioBtn = document.getElementById("audioToggle");
 
-audioBtn.onclick = () => {
-  song.muted = !song.muted;
-  audioBtn.textContent = song.muted ? "🔇" : "🔊";
-};
+let audioOn = false;
 
-/* NO button */
+/* Mute / Unmute */
+audioBtn.addEventListener("click", () => {
+  audioOn = !audioOn;
+  song.muted = !audioOn;
+  audioBtn.textContent = audioOn ? "🔊" : "🔇";
+});
+
+/* NO button phrases */
+const noTexts = [
+  "No 🙈","Damn 😭","C’mon 😅",
+  "Seriously? 🥺","Pleaseee 💔",
+  "You’re mean 😩","Last chance 😳"
+];
+let noIndex = 0;
+
 function moveNo() {
-  noBtn.style.transform =
-    `translate(${Math.random()*200-100}px, ${Math.random()*60-30}px)`;
+  const x = Math.random() * 220 - 110;
+  const y = Math.random() * 60 - 30;
+  noBtn.style.transform = `translate(${x}px, ${y}px)`;
+  noBtn.textContent = noTexts[noIndex];
+  noIndex = (noIndex + 1) % noTexts.length;
 }
-noBtn.onmouseenter = moveNo;
-noBtn.onclick = moveNo;
+
+noBtn.addEventListener("mouseenter", moveNo);
+noBtn.addEventListener("click", moveNo);
 
 /* Hearts */
 function startHearts() {
@@ -250,7 +254,7 @@ function startHearts() {
     const h = document.createElement("div");
     h.className = "heart";
     h.textContent = Math.random() < .5 ? "❤️" : "💖";
-    h.style.left = Math.random()*100 + "vw";
+    h.style.left = Math.random() * 100 + "vw";
     document.body.appendChild(h);
     setTimeout(() => h.remove(), 4000);
   }, 250);
@@ -272,7 +276,7 @@ function confettiBurst() {
   }
 }
 
-/* SVG Butterflies */
+/* Butterflies */
 function startButterflies() {
   const tpl = document.getElementById("butterflyTemplate");
   setInterval(() => {
@@ -285,7 +289,7 @@ function startButterflies() {
 }
 
 /* YES */
-yesBtn.onclick = () => {
+yesBtn.addEventListener("click", () => {
   song.muted = false;
   song.play();
   audioBtn.textContent = "🔊";
@@ -301,7 +305,7 @@ yesBtn.onclick = () => {
 
   startHearts();
   startButterflies();
-};
+});
 </script>
 
 </body>
